@@ -13,3 +13,9 @@ frontend/build
 # typescript
 frontend/*.tsbuildinfo
 frontend/next-env.d.ts
+
+backend/venv
+backend/__pycache__
+backend/models/__pycache__
+backend/routers/__pycache__
+backend/schemas/__pycache__
