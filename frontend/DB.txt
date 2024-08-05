@@ -1,0 +1,52 @@
+CREATE DATABASE tourai;
+
+CREATE TABLE admin (
+    id SERIAL PRIMARY KEY,
+    user_name VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    age INT,
+    user_name VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE service (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    address VARCHAR(255),
+    type VARCHAR(50),
+    phone VARCHAR(20),
+    website VARCHAR(255),
+    email VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE service_image (
+    service_id INT REFERENCES service(id) ON DELETE CASCADE,
+    image_url TEXT NOT NULL
+);
+
+CREATE TABLE comment (
+    service_id INT REFERENCES service(id) ON DELETE CASCADE,
+    users_id INT REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255),
+    content TEXT,
+    rating INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE own_service (
+    users_id INT REFERENCES users(id) ON DELETE CASCADE,
+    service_id INT REFERENCES service(id) ON DELETE CASCADE
+);
+
+CREATE TABLE favorite (
+    users_id INT REFERENCES users(id) ON DELETE CASCADE,
+    service_id INT REFERENCES service(id) ON DELETE CASCADE
+);

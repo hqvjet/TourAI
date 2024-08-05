@@ -1,0 +1,8 @@
+flask
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+axios
+antd
+react-slick
