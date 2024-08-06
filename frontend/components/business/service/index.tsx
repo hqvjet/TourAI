@@ -1,9 +1,12 @@
+'use client'
 import React, { useEffect, useState } from 'react';
 import { Table, Spin, Alert, Button, Popconfirm, message } from 'antd';
+import { useRouter } from 'next/navigation';
 import { serviceAPI } from '@/apis/service';
 import { authAPI } from '@/apis/auth';
 
 const Services = () => {
+  const router = useRouter();
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,9 +17,9 @@ const Services = () => {
       const response = await authAPI.cookie();
       const fetchedUserId = response.data.user_id;
       setUserId(fetchedUserId);
-      message.info(`User ID: ${response.data.user_id}`);
     } catch (error) {
       setError('Failed to fetch user ID from cookie.');
+      router.push('/login');
       console.error(error);
     }
   };

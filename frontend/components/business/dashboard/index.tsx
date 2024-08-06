@@ -20,7 +20,6 @@ const Dashboard = () => {
         const response = await authAPI.cookie();
         const fetchedUserId = response.data.user_id;
         setUserId(fetchedUserId);
-        message.info(`User ID: ${response.data.user_id}`);
       } catch (error) {
         console.error('Failed to fetch user ID from cookie:', error);
         setError('Failed to fetch user ID.');

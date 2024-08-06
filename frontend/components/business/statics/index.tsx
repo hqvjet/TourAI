@@ -15,7 +15,6 @@ const Statistics = () => {
     try {
       const response = await authAPI.cookie();
       setUserId(response.data.user_id);
-      message.info(`User ID: ${response.data.user_id}`);
     } catch (error) {
       setError('Failed to fetch user ID from cookie.');
       console.error(error);

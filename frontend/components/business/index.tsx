@@ -1,8 +1,9 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { DashboardOutlined, ShopOutlined, CommentOutlined, AppstoreOutlined, LineChartOutlined } from '@ant-design/icons';
 import Dashboard from './dashboard';
+import { useRouter } from 'next/navigation';
 import CreateService from './service/create_service';
 import ViewComments from './comment';
 import ViewServices from './service';
@@ -14,6 +15,7 @@ const { Header, Sider, Content } = Layout;
 type MenuItemKey = 'dashboard' | 'createService' | 'viewComments' | 'viewServices' | 'statistics' | 'ratingDistribution';
 
 const Business = () => {
+  const router = useRouter();
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItemKey>('dashboard');
 
   const menuItems = [
@@ -24,6 +26,10 @@ const Business = () => {
     { key: 'statistics', icon: <LineChartOutlined />, label: 'Statistics' },
     { key: 'ratingDistribution', icon: <LineChartOutlined />, label: 'Rating Distribution' },
   ];
+
+  useEffect(() => {
+    
+  }, [])
 
   const content: Record<MenuItemKey, JSX.Element> = {
     dashboard: <Dashboard />,

@@ -34,7 +34,6 @@ const Comments = () => {
       const response = await authAPI.cookie();
       const fetchedUserId = response.data.user_id;
       setUserId(fetchedUserId);
-      message.info(`ID: ${response.data.user_id}`);
     } catch (error) {
       console.error('Failed to fetch user ID from cookie:', error);
     }

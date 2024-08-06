@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Form, Input, message, Select, Upload } from 'antd';
+import { Button, Form, Input, message, Select, Upload, Card } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { serviceAPI } from '@/apis/service';
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
@@ -23,6 +23,7 @@ const CreateServiceForm: React.FC = () => {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
   });
   const [selected, setSelected] = useState({ lat: 0, lng: 0 });
+  const [geolocation, setGeolocation] = useState<string | null>('');
   const [form] = Form.useForm();
 
   const onMapClick = useCallback((event: any) => {
@@ -30,10 +31,7 @@ const CreateServiceForm: React.FC = () => {
       lat: event.latLng.lat(),
       lng: event.latLng.lng(),
     });
-    form.setFieldsValue({
-      address: event.latLng.lat().toString() + ',' + event.latLng.lng().toString()
-    })
-    
+    setGeolocation(event.latLng.lat().toString() + ',' + event.latLng.lng().toString());
   }, []);
 
   useEffect(() => {
@@ -42,7 +40,6 @@ const CreateServiceForm: React.FC = () => {
         const response = await authAPI.cookie();
         const fetchedUserId = response.data.user_id;
         setUserId(fetchedUserId);
-        message.info(`ID: ${response.data.user_id}`);
       } catch (error) {
         console.error('Failed to fetch user ID from cookie:', error);
       }
@@ -53,13 +50,20 @@ const CreateServiceForm: React.FC = () => {
 
   const onFinish = async (values: any) => {
     if (userId === null) {
-      message.error('User not authenticated.');
+      message.error('Bạn cần phải xác thức người dùng trước khi sử dụng tính năng này');
+      return;
+    }
+    
+    if (geolocation == '') {
+      message.error('Bạn chưa chọn vị trí địa lý!');
       return;
     }
 
-    const serviceValues = { ...values, user_id: userId };
+    let serviceValues = { ...values, user_id: userId, geolocation: geolocation};
+    // serviceValues = { ...serviceValues, image_urls: serviceValues.image_urls.fileList};
 
-    message.info(`Form values: ${JSON.stringify(serviceValues)}`);
+    // message.info(`Form values: ${JSON.stringify(serviceValues)}`);
+    console.log(serviceValues);
 
     setLoading(true);
     try {
@@ -99,7 +103,7 @@ const CreateServiceForm: React.FC = () => {
   return (
     <div className='flex justify-center items-center w-full h-full'>
       <div className='flex flex-col items-center justify-center rounded-2xl bg-white shadow py-14 pl-20 pr-32'>
-        <h1 className="text-4xl text-center text-black font-bold mb-10 ml-20 ">bắt đầu kinh doanh!</h1>
+        <h1 className="text-4xl text-center text-black font-bold mb-10 ml-20 ">Bắt đầu kinh doanh ngay nào!</h1>
         <Form
           name="create_service"
           labelCol={{ span: 8 }}
@@ -126,6 +130,14 @@ const CreateServiceForm: React.FC = () => {
             rules={[{ required: true, message: 'Xin hãy nhập giới thiệu thương hiệu' }]}
           >
             <Input.TextArea />
+          </Form.Item>
+
+          <Form.Item
+            label="Địa Chỉ"
+            name="address"
+            rules={[{ required: true, message: 'Xin hãy nhập địa chỉ' }]}
+          >
+            <Input />
           </Form.Item>
 
           <Form.Item
@@ -165,67 +177,42 @@ const CreateServiceForm: React.FC = () => {
             <Input />
           </Form.Item>
 
-          </Form.Item>
-                  <Form.Item label="Images">
-          <Upload
-            action={undefined}
-            listType="picture"
-            fileList={fileList}
-            onChange={handleChange}
-            beforeUpload={() => false}
-            maxCount={5}
-          >
-            <Button icon={<UploadOutlined />}>Upload Image</Button>
-          </Upload>
-        </Form.Item>
-          
-          <Form.Item label="Ảnh">
-            {images.map((img, index) => (
-              <div key={index}>
-                <Form.Item
-                  label={`Ảnh ${index + 1}`}
-                  name={['images_data', index, 'image_url']}
-                  rules={[{ required: true, message: 'xin hãy thêm ảnh!' }]}
-                >
-                  <Input
-                    value={img.image_url}
-                    onChange={(e: any) => handleImageChange(index, 'image_url', e.target.value)}
-                  />
-                </Form.Item>
-
-                {images.length > 1 && index === images.length - 1 && (
-                  <Button type="dashed" onClick={() => handleRemoveImage(index)} block>
-                    Xóa ảnh
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button type="dashed" onClick={handleAddImage} block>
-              Thêm ảnh
-            </Button>
-          </Form.Item>
-
           <Form.Item
-            label="Địa Chỉ"
-            name="address"
-            rules={[{ required: true, message: 'Xin hãy nhập địa chỉ' }]}
+            label="Images"
+            name="image_urls"
           >
-            <Input />
-
-
-          <div className='w-full h-96 ml-10'>
-            <GoogleMap
-              mapContainerStyle={{
-                width: '100%',
-                height: '100%',
-              }}
-              zoom={8}
-              center={center}
-              onClick={onMapClick}
+            <Upload
+              action={undefined}
+              listType="picture"
+              fileList={fileList}
+              onChange={handleChange}
+              beforeUpload={() => false}
+              maxCount={15}
+              multiple
             >
-              {selected && <Marker position={{ lat: selected.lat, lng: selected.lng }} />}
-            </GoogleMap>
-          </div>
+              <Button icon={<UploadOutlined />}>Upload Image</Button>
+            </Upload>
+          </Form.Item>
+
+          <Card
+            title={<h1 className='text-xl text-gray-800'>Xin hãy chọn vị trí dịch vụ của bạn</h1>}
+            className='w-auto h-auto ml-28'
+            cover={
+              <GoogleMap
+                mapContainerStyle={{
+                  width: '450px',
+                  height: '400px',
+                }}
+                zoom={8}
+                center={center}
+                onClick={onMapClick}
+              >
+                {selected && <Marker position={{ lat: selected.lat, lng: selected.lng }} />}
+              </GoogleMap>
+            }
+          >
+            <p>{`Vị trí địa lý: ${geolocation}`}</p>
+          </Card>
 
           <Form.Item wrapperCol={{ offset: 13, span: 16 }} className='mt-10 mr-20'>
             <Button className='bg-red-400 px-10 py-5 text-lg' type="primary" htmlType="submit" loading={loading}>
@@ -234,7 +221,7 @@ const CreateServiceForm: React.FC = () => {
           </Form.Item>
         </Form>
       </div>
-    </div>
+    </div >
   );
 };
 
