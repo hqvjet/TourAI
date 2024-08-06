@@ -1,10 +1,12 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Form, Input, message, Select } from 'antd';
+import { Button, Form, Input, message, Select, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import { serviceAPI } from '@/apis/service';
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api';
 import { authAPI } from '@/apis/auth';
+import { RcFile } from 'antd/es/upload';
 
 const { Option } = Select;
 const center = {
@@ -15,8 +17,8 @@ const center = {
 const CreateServiceForm: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState([{ image_url: '' }]);
   const [userId, setUserId] = useState<number | null>(null);
+  const [fileList, setFileList] = useState<any[]>([]);
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
   });
@@ -63,14 +65,16 @@ const CreateServiceForm: React.FC = () => {
     try {
       const serviceResponse = await serviceAPI.createService(serviceValues);
       const serviceId = serviceResponse.data.id;
-      const imagePromises = images.map((img) => {
-        const imagePayload = {
-          service_id: serviceId,
-          image_url: img.image_url,
-        };
-        return serviceAPI.createServiceImage(serviceId, imagePayload);
+
+      const imageUploadPromises = fileList.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file.originFileObj as RcFile);
+        formData.append('service_id', serviceId.toString());
+
+        await serviceAPI.createServiceImage(serviceId, formData);
       });
-      await Promise.all(imagePromises);
+
+      await Promise.all(imageUploadPromises);
 
       message.success('Service created successfully with images!');
       console.log('Service created successfully with images:', serviceResponse.data);
@@ -87,23 +91,7 @@ const CreateServiceForm: React.FC = () => {
     console.log('Failed:', errorInfo);
   };
 
-  const handleAddImage = () => {
-    setImages([...images, { image_url: '' }]);
-  };
-
-  const handleRemoveImage = (index: number) => {
-    if (images.length > 1) {
-      const newImages = images.filter((_, imgIndex) => imgIndex !== index);
-      setImages(newImages);
-    }
-  };
-
-  const handleImageChange = (index: number, field: string, value: string) => {
-    const newImages = images.map((img, imgIndex) =>
-      imgIndex === index ? { ...img, [field]: value } : img
-    );
-    setImages(newImages);
-  };
+  const handleChange = ({ fileList }: { fileList: any[] }) => setFileList(fileList);
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading Maps</div>;
@@ -123,6 +111,7 @@ const CreateServiceForm: React.FC = () => {
           autoComplete="off"
           form={form}
         >
+
           <Form.Item
             label="Tên"
             name="name"
@@ -176,6 +165,20 @@ const CreateServiceForm: React.FC = () => {
             <Input />
           </Form.Item>
 
+          </Form.Item>
+                  <Form.Item label="Images">
+          <Upload
+            action={undefined}
+            listType="picture"
+            fileList={fileList}
+            onChange={handleChange}
+            beforeUpload={() => false}
+            maxCount={5}
+          >
+            <Button icon={<UploadOutlined />}>Upload Image</Button>
+          </Upload>
+        </Form.Item>
+          
           <Form.Item label="Ảnh">
             {images.map((img, index) => (
               <div key={index}>
@@ -208,7 +211,7 @@ const CreateServiceForm: React.FC = () => {
             rules={[{ required: true, message: 'Xin hãy nhập địa chỉ' }]}
           >
             <Input />
-          </Form.Item>
+
 
           <div className='w-full h-96 ml-10'>
             <GoogleMap

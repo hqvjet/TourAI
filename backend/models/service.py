@@ -10,6 +10,7 @@ class Service(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text)
     address = Column(String(255))
+    geolocation = Column(String(255))
     type = Column(String(50))
     phone = Column(String(20))
     website = Column(String(255))

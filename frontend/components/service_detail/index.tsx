@@ -78,7 +78,8 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
   const fetchComments = async () => {
     try {
       message.info(`Fetching comments for id: ${id}`);
-      message.info(`Users id: ${user_id}`);
+      message.info(`Users id: ${user_id}`);      
+      message.info(`Image: ${imageUrls}`);
       const response = await commentAPI.getCommentById(id);
       setComments(response.data);
 
@@ -147,7 +148,10 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
       console.error('Error submitting review:', error);
     }
   };
-
+  const formattedImageUrls = imageUrls.map((url) => ({
+    original: url.startsWith('http') ? url : `http://localhost:8000${url}`,
+    thumbnail: url.startsWith('http') ? url : `http://localhost:8000${url}`,
+  }));
   return (
     <div className="w-7/12 mx-auto px-4 py-8">
       <div className="rounded-lg">
@@ -175,10 +179,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
 
       <div className="mb-4 mt-4 border border-gray-300 rounded-lg">
         <ImageGallery
-          items={imageUrls.map((url) => ({
-            original: url,
-            thumbnail: url,
-          }))}
+          items={formattedImageUrls}
           showPlayButton={false}
           showThumbnails={false}
           showFullscreenButton={false}

@@ -59,7 +59,7 @@ export default function Home() {
         limit={8}
       />
 
-      <Search results={results} setResults={handleSearch} typeFilter={type} services={[]} />
+      <Search results={results} setResults={handleSearch} typeFilter={type}/>
 
       <ServicesPage services={results} />
 

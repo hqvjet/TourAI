@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
@@ -6,6 +6,7 @@ class ServiceBase(BaseModel):
     id: Optional[int] = None 
     name: str
     address: Optional[str] = None
+    geolocation: Optional[str] = None
     website: Optional[str] = None
     type: Optional[str] = None
     description: Optional[str] = None

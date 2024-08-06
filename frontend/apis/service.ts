@@ -28,5 +28,5 @@ export const serviceAPI = {
   },
   getMyServices: (userId: number) => {
     return SERVICE_API.get('/my_services', { params: { user_id: userId }, withCredentials: true });
-  }
+  },
 };
