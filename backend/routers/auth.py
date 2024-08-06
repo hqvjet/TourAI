@@ -54,7 +54,7 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
         db.refresh(new_user)
         
         logging.info("User created successfully")
-        return {"message": f"Tạo tài khoản {user_data.role.lower()} thành công"}
+        return {"message": f"Tạo tài khoản {user_data.role.lower()} thành công"}, 200
     
     except HTTPException as e:
         logging.error(f"HTTPException: {str(e.detail)}")
