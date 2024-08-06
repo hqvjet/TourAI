@@ -6,27 +6,23 @@ import { serviceAPI } from '@/apis/service';
 interface SearchProps {
   results: any[];
   setResults: (results: any[]) => void;
-  services: any[];
   typeFilter: string;
 }
 
-const Search: React.FC<SearchProps> = ({ results, setResults, services, typeFilter }) => {
+const Search: React.FC<SearchProps> = ({ results, setResults, typeFilter }) => {
   const [search, setSearch] = useState<string>("");
 
   async function handleSearch() {
     try {
-      let response;
-      console.log("typeFilter:", typeFilter);
-      
-      if (typeFilter && typeFilter !== "all") {
-        response = await serviceAPI.searchServices(search, typeFilter);
+      const response = await serviceAPI.searchServices(search, typeFilter);
+      if (response && response.data) {
+        setResults(response.data.services || []);
       } else {
-        response = await serviceAPI.searchServices(search, "");
+        setResults([]);
       }
-
-      setResults(response.data);
     } catch (error) {
       console.error("Error fetching results:", error);
+      setResults([]);
     }
   }
 
@@ -37,15 +33,14 @@ const Search: React.FC<SearchProps> = ({ results, setResults, services, typeFilt
           <span className="my-auto ml-2">
             <SearchIcon className="text-4xl" />
           </span>
-
           <input
             type="text"
             className="flex-1 p-3 outline-none text-xl placeholder-shown:border-black"
             placeholder="Khách sạn, hàng không, grab..."
             onChange={(event) => setSearch(event.target.value)}
+            value={search}
           />
         </div>
-
         <button
           className="bg-green-400 p-3 px-5 rounded-md md:rounded-full text-xl font-bold w-full md:w-auto"
           onClick={handleSearch}

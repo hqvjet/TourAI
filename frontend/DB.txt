@@ -20,6 +20,7 @@ CREATE TABLE service (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     address VARCHAR(255),
+    geolocation VARCHAR(255),
     type VARCHAR(50),
     phone VARCHAR(20),
     website VARCHAR(255),

@@ -1,17 +1,19 @@
 'use client'
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Form, Input, message, Select } from 'antd';
+import { Button, Form, Input, message, Select, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import { serviceAPI } from '@/apis/service';
 import { authAPI } from '@/apis/auth';
+import { RcFile } from 'antd/es/upload';
 
 const { Option } = Select;
 
 const CreateServiceForm: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState([{ image_url: '' }]);
   const [userId, setUserId] = useState<number | null>(null);
+  const [fileList, setFileList] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -42,14 +44,16 @@ const CreateServiceForm: React.FC = () => {
     try {
       const serviceResponse = await serviceAPI.createService(serviceValues);
       const serviceId = serviceResponse.data.id;
-      const imagePromises = images.map((img) => {
-        const imagePayload = {
-          service_id: serviceId,
-          image_url: img.image_url,
-        };
-        return serviceAPI.createServiceImage(serviceId, imagePayload);
+
+      const imageUploadPromises = fileList.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file.originFileObj as RcFile);
+        formData.append('service_id', serviceId.toString());
+
+        await serviceAPI.createServiceImage(serviceId, formData);
       });
-      await Promise.all(imagePromises);
+
+      await Promise.all(imageUploadPromises);
 
       message.success('Service created successfully with images!');
       console.log('Service created successfully with images:', serviceResponse.data);
@@ -66,23 +70,7 @@ const CreateServiceForm: React.FC = () => {
     console.log('Failed:', errorInfo);
   };
 
-  const handleAddImage = () => {
-    setImages([...images, { image_url: '' }]);
-  };
-
-  const handleRemoveImage = (index: number) => {
-    if (images.length > 1) {
-      const newImages = images.filter((_, imgIndex) => imgIndex !== index);
-      setImages(newImages);
-    }
-  };
-
-  const handleImageChange = (index: number, field: string, value: string) => {
-    const newImages = images.map((img, imgIndex) =>
-      imgIndex === index ? { ...img, [field]: value } : img
-    );
-    setImages(newImages);
-  };
+  const handleChange = ({ fileList }: { fileList: any[] }) => setFileList(fileList);
 
   return (
     <div>
@@ -159,29 +147,16 @@ const CreateServiceForm: React.FC = () => {
         </Form.Item>
 
         <Form.Item label="Images">
-          {images.map((img, index) => (
-            <div key={index}>
-              <Form.Item
-                label={`Image URL ${index + 1}`}
-                name={['images_data', index, 'image_url']}
-                rules={[{ required: true, message: 'Please input the image URL!' }]}
-              >
-                <Input
-                  value={img.image_url}
-                  onChange={(e : any) => handleImageChange(index, 'image_url', e.target.value)}
-                />
-              </Form.Item>
-              
-              {images.length > 1 && index === images.length - 1 && (
-                <Button type="dashed" onClick={() => handleRemoveImage(index)} block>
-                  Remove Image
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button type="dashed" onClick={handleAddImage} block>
-            Add Image
-          </Button>
+          <Upload
+            action={undefined}
+            listType="picture"
+            fileList={fileList}
+            onChange={handleChange}
+            beforeUpload={() => false}
+            maxCount={5}
+          >
+            <Button icon={<UploadOutlined />}>Upload Image</Button>
+          </Upload>
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 13, span: 16 }}>
