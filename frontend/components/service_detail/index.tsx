@@ -8,7 +8,7 @@ import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { commentAPI } from '@/apis/comment';
-import { message } from 'antd';
+import { message, Card } from 'antd';
 
 interface ServiceDetailProps {
   name: string;
@@ -45,8 +45,6 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
   const [negative, setNegative] = useState(0);
   const [neutral, setNeutral] = useState(0);
 
-  const googleMapsApiKey = 'AIzaSyALdtjS7fTDhDdrqyp6eQ1nOfNu86MmdJM';
-
   const mapContainerStyle = {
     width: '100%',
     height: '600px',
@@ -56,7 +54,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
     const fetchMapData = async () => {
       try {
         const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${googleMapsApiKey}`
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${address}&key=${process.env.NEXT_PUBLIC_MAP_API}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch map data');
@@ -75,7 +73,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
     };
 
     fetchMapData();
-  }, [address, googleMapsApiKey]);
+  }, [address, process.env.NEXT_PUBLIC_MAP_API]);
 
   const fetchComments = async () => {
     try {
@@ -155,14 +153,15 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
     thumbnail: url.startsWith('http') ? url : `http://localhost:8000${url}`,
   }));
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="mt-4 pl-4 border border-gray-300 rounded-lg">
-        <h2 className="pl-4 text-2xl font-bold">{name}</h2>
-        <p className="pl-4 mt-2">
+    <div className="w-7/12 mx-auto px-4 py-8">
+      <div className="rounded-lg">
+        <h2 className="text-5xl font-bold">{name}</h2>
+        <p className='mt-2 text-gray-700'>{`${comments.length} đánh giá`}</p>
+        <p className="mt-2 text-gray-700">
           <LocationOnIcon /> {address}
         </p>
         {website && (
-          <p className="mt-2 pl-4">
+          <p className="mt-2 text-gray-700">
             <a
               href={website}
               target="_blank"
@@ -173,11 +172,8 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
             </a>
           </p>
         )}
-        <p className="mt-2 pl-4">
+        <p className="mt-2 text-gray-700">
           <PhoneIcon /> {phone}
-        </p>
-        <p className="mt-2 pl-4">
-          <RoomServiceIcon /> {type}
         </p>
       </div>
 
@@ -185,7 +181,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
         <ImageGallery
           items={formattedImageUrls}
           showPlayButton={false}
-          showThumbnails={true}
+          showThumbnails={false}
           showFullscreenButton={false}
           renderItem={(item) => (
             <div className="w-full h-full md:h-[600px] max-h-[600px] overflow-hidden">
@@ -200,11 +196,14 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
       </div>
 
       <div className="mt-6 border border-gray-300 rounded-lg">
-        <h3 className="text-lg font-bold mb-6">Vị trí:</h3>
+        <h3 className="text-2xl font-bold mb-2 mt-4 ml-4 ">Vị trí</h3>
+        <p className="mb-2 ml-4 text-gray-700">
+          <LocationOnIcon /> {address}
+        </p>
         <div className="w-full h-[400px] md:h-[600px] bg-slate-300 drop-shadow-sm">
           {!mapLoaded && <div className="p-4">Loading map...</div>}
           {mapLoaded && (
-            <LoadScript googleMapsApiKey={googleMapsApiKey}>
+            <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_MAP_API as string}>
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={mapCenter}
@@ -218,6 +217,12 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
         </div>
       </div>
 
+      <Card title={<h1 className='text-3xl'>Giới thiệu</h1>} className='mt-8'>
+        <div className="mt-4">
+          <h3 className="text-lg font-bold">Description:</h3>
+          <p className="mt-2">{description}</p>
+        </div>
+      </Card>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
         <div className="col-span-1 border border-gray-300 rounded-lg p-4">
           <div className="mt-4">
@@ -235,13 +240,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
             </div>
           </div>
         </div>
-        <div className="col-span-1 md:border md:border-gray-300 md:rounded-lg md:p-4">
-          <div className="mt-4">
-            <h3 className="text-lg font-bold">Description:</h3>
-            <p className="mt-2">{description}</p>
-          </div>
-        </div>
-        <div className="col-span-1 md:border md:border-gray-300 md:rounded-lg md:p-4">
+        <div className="col-span-1 md:border md:border-gray-300 md:rounded-lg md:p-4 overflow-auto">
           <div className="mt-4">
             <h3 className="text-lg font-bold">Contact Information:</h3>
             {address && (
