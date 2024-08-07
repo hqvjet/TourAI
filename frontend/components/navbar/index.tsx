@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/apis/auth';
-import { message } from 'antd';
+import type { MenuProps } from 'antd';
+import { message, Button, Menu, Dropdown } from 'antd';
 
 interface User {
   full_name: string;
   role: string;
   user_id: number;
 }
+
+const items: MenuProps['items'] = [
+  {
+    key: 'logout',
+    label: 'Đăng xuất'
+  },
+]
 
 function NavbarSimple() {
   const [user, setUser] = useState<User | null>(null);
@@ -19,9 +27,9 @@ function NavbarSimple() {
       try {
         const response = await authAPI.cookie();
         setUser(response.data);
-        message.info(`User ID: ${response.data.user_id}`);
       } catch (error) {
-        console.error('Failed to fetch user:', error);
+        // console.error('Failed to fetch user:', error); 
+        router.push('/login')
       }
     };
 
@@ -39,8 +47,9 @@ function NavbarSimple() {
     }
   };
 
-  const toggleLogoutMenu = () => {
-    setShowLogout(!showLogout);
+  const onClick: MenuProps['onClick'] = ({ key }) => {
+    if (key == 'logout')
+      handleLogout()
   };
 
   return (
@@ -59,9 +68,13 @@ function NavbarSimple() {
           {user ? (
             user.role === 'admin' || user.role === 'business' ? (
               <div className="navbar-end">
-                <span className="btn" onClick={handleLogout}>
-                  Đăng Xuất
-                </span>
+                  <Dropdown
+                    menu={{ items, onClick }}
+                  >
+                    <p className='hover:cursor-pointer'>
+                      Xin chào, <i className='text-lg'>{user.full_name}</i>
+                    </p>
+                  </Dropdown>
               </div>
             ) : (
               <>
@@ -80,20 +93,19 @@ function NavbarSimple() {
                 </div>
 
                 <div className="navbar-end">
-                  <span className="btn" onClick={toggleLogoutMenu}>
-                    Xin chào, {user.full_name}
-                  </span>
-                  {showLogout && (
-                    <a href="#" onClick={handleLogout} className="btn">
-                      Đăng Xuất
-                    </a>
-                  )}
+                  <Dropdown
+                    menu={{ items, onClick }}
+                  >
+                    <p className='hover:cursor-pointer'>
+                      Xin chào, <i className='text-lg'>{user.full_name}</i>
+                    </p>
+                  </Dropdown>
                 </div>
               </>
             )
           ) : (
             <div className="navbar-end">
-              <a href='/login' className="btn">Đăng Nhập</a>
+              <a href='/login' className="btn border-none bg-green-500 text-white hover:bg-green-400">Đăng Nhập</a>
             </div>
           )}
         </div>

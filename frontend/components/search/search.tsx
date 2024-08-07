@@ -28,7 +28,7 @@ const Search: React.FC<SearchProps> = ({ results, setResults, typeFilter }) => {
 
   return (
     <div className="m-3">
-      <div className="max-w-5xl md:flex mx-auto p-1 border-2 rounded-lg md:rounded-full shadow-md bg-white">
+      <div className="max-w-3xl md:flex mx-auto p-1 border-2 rounded-lg md:rounded-full shadow-md bg-white">
         <div className="flex-1 flex">
           <span className="my-auto ml-2">
             <SearchIcon className="text-4xl" />
@@ -45,7 +45,7 @@ const Search: React.FC<SearchProps> = ({ results, setResults, typeFilter }) => {
           className="bg-green-400 p-3 px-5 rounded-md md:rounded-full text-xl font-bold w-full md:w-auto"
           onClick={handleSearch}
         >
-          Search
+          Tìm kiếm
         </button>
       </div>
     </div>

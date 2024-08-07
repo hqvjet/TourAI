@@ -26,12 +26,12 @@ const ServicesPage: React.FC<ServicesPageProps> = ({ services = [] }) => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mx-auto max-w-7xl m-1">
         {services.map((service) => (
           <Link href={`/services/${service.id}`} key={service.id}>
-            <div className="m-1 md:m-3 shadow-xl hover:cursor-pointer hover:underline bg-white">
+            <div className="m-1 md:m-3 hover:cursor-pointer hover:underline bg-white overflow-auto h-[400px] items-stretch">
               <img
                 src={service.image_urls[0] || 'null'}
-                className="transition duration-700 z-2 h-[200px] md:h-[200px] w-full object-cover"
+                className="transition duration-700 z-2 h-[200px] md:h-[200px] w-full object-cover rounded-lg"
               />
-              <div className="mb-6">
+              <div className="mb-6 flex flex-col justify-between">
                 <div className="text-sm md:text-xl font-medium ml-2 pb-2 pt-2 text-center hover:underline transition duration-700 truncate">
                   {service.name}
                 </div>

@@ -5,7 +5,12 @@ export const serviceAPI = {
     return SERVICE_API.post('/create', serviceData, { withCredentials: true });
   },
   createServiceImage: (serviceId: number, imageData: any) => {
-    return SERVICE_API.post(`/${serviceId}/images`, imageData);
+    return SERVICE_API.post(`/${serviceId}/images`, imageData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
   },
   getServices: (params?: { type?: string, page?: number, limit?: number }) => {
     return SERVICE_API.get('/', { params });
@@ -21,7 +26,7 @@ export const serviceAPI = {
     return SERVICE_API.get(`/${serviceId}/images`);
   },
   getAllServices: (params: any = {}) => {
-    return SERVICE_API.get('/all' , { params });
+    return SERVICE_API.get('/all', { params });
   },
   deleteService: (serviceId: number) => {
     return SERVICE_API.delete(`/${serviceId}`);

@@ -24,7 +24,6 @@ const RegisterForm: React.FC = () => {
 
   const onFinish = async (values: RegisterFormValues) => {
     setLoading(true);
-    message.info(`Registered values: ${JSON.stringify(values)}`);
     try {
       const response = await authAPI.registerUser(values);
       message.success('Registered successfully!');
