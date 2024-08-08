@@ -4,8 +4,9 @@ export const serviceAPI = {
   createService: (serviceData: any) => {
     return SERVICE_API.post('/create', serviceData, { withCredentials: true });
   },
-  createServiceImage: (serviceId: number, imageData: any) => {
-    return SERVICE_API.post(`/${serviceId}/images`, imageData);
+  createServiceImage: (serviceId: number, imageData: FormData) => {
+    return SERVICE_API.post(`/${serviceId}/images`, imageData, {
+      headers: {'Content-Type': 'multipart/form-data'},});
   },
   getServices: (params?: { type?: string, page?: number, limit?: number }) => {
     return SERVICE_API.get('/', { params });

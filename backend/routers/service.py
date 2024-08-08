@@ -9,7 +9,7 @@ from models.user import User as UserModel
 from models.service_image import ServiceImage as ServiceImageModel
 from models.comment import Comment as CommentModel
 from models.own_service import OwnService as OwnServiceModel
-from schemas.service import Service as ServiceSchema, ServiceResponse
+from schemas.service import Service as ServiceSchema, ServiceCreate, ServiceResponse
 from schemas.service_image import ServiceImage as ServiceImageSchema
 from .auth import get_current_user
 import uuid
@@ -53,7 +53,7 @@ def apply_sorting(query, sort_by, db):
     return query
 
 @router.post('/create', response_model=ServiceSchema)
-def create_service(service: ServiceSchema, request: Request, db: Session = Depends(get_db)):
+def create_service(service: ServiceCreate, request: Request, db: Session = Depends(get_db)):
     print('hellu')
     user_name = get_current_user(request)
     user = db.query(UserModel).filter(UserModel.user_name == user_name).first()

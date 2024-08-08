@@ -64,6 +64,7 @@ const CreateServiceForm: React.FC = () => {
 
     // message.info(`Form values: ${JSON.stringify(serviceValues)}`);
     console.log(serviceValues);
+    console.log(JSON.stringify(serviceValues));
 
     setLoading(true);
     try {

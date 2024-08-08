@@ -4,7 +4,7 @@ from datetime import datetime
 
 class ServiceBase(BaseModel):
     id: Optional[int] = None 
-    name: str
+    name: Optional[str] = None
     address: Optional[str] = None
     geolocation: Optional[str] = None
     website: Optional[str] = None
@@ -12,7 +12,7 @@ class ServiceBase(BaseModel):
     description: Optional[str] = None
     email: Optional[str] = None
     image_urls: Optional[List[str]] = None
-    phone: str
+    phone: Optional[str] = None
     created_at: Optional[datetime] = None
     average_rating: Optional[float] = None
 
@@ -25,6 +25,16 @@ class Service(ServiceBase):
 
     class Config:
         from_attributes = True
+        
+class ServiceCreate(BaseModel):
+    name: str
+    address: str
+    geolocation: str
+    website: str
+    type: str
+    description: str
+    email: str
+    phone: str
 
 class ServiceResponse(BaseModel):
     services: List[ServiceBase]
