@@ -10,8 +10,8 @@ import { RcFile } from 'antd/es/upload';
 
 const { Option } = Select;
 const center = {
-  lat: 21.0285,
-  lng: 105.8542, // Tọa độ của Hà Nội, Việt Nam
+  lat: 20.98116143483254,
+  lng: 105.87193695393734
 };
 
 const CreateServiceForm: React.FC = () => {
@@ -60,11 +60,11 @@ const CreateServiceForm: React.FC = () => {
     }
 
     let serviceValues = { ...values, user_id: userId, geolocation: geolocation};
-    // serviceValues = { ...serviceValues, image_urls: serviceValues.image_urls.fileList};
+    serviceValues = { ...serviceValues, image_urls: serviceValues.image_urls.fileList};
 
-    // message.info(`Form values: ${JSON.stringify(serviceValues)}`);
     console.log(serviceValues);
     console.log(JSON.stringify(serviceValues));
+
 
     setLoading(true);
     try {
@@ -81,9 +81,9 @@ const CreateServiceForm: React.FC = () => {
 
       await Promise.all(imageUploadPromises);
 
-      message.success('Service created successfully with images!');
-      console.log('Service created successfully with images:', serviceResponse.data);
-      router.push('/business');
+      // message.success('Service created successfully with images!');
+      // console.log('Service created successfully with images:', serviceResponse.data);
+      window.location.reload();
     } catch (error) {
       console.error('Error creating service:', error);
       message.error('Creation failed. Please check your input and try again.');

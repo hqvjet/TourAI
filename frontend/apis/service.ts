@@ -22,7 +22,7 @@ export const serviceAPI = {
     return SERVICE_API.get(`/${serviceId}/images`);
   },
   getAllServices: (params: any = {}) => {
-    return SERVICE_API.get('/all' , { params });
+    return SERVICE_API.get('/all', { params });
   },
   deleteService: (serviceId: number) => {
     return SERVICE_API.delete(`/${serviceId}`);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Table, Spin, Alert } from 'antd';
+import { Table, Spin, Alert, Popconfirm, Button } from 'antd';
 import { userAPI } from '@/apis/user';
 
 interface User {
@@ -15,23 +15,33 @@ const User = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await userAPI.getAllUser({});
-        setUsers(response.data);
-      } catch (err) {
-        setError('Failed to fetch users.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUsers = async () => {
+    try {
+      const response = await userAPI.getAllUser({});
+      setUsers(response.data);
+    } catch (err) {
+      setError('Failed to fetch users.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUsers();
   }, []);
 
   if (loading) return <Spin tip="Loading..." />;
   if (error) return <Alert message="Error" description={error} type="error" />;
+
+  const handleDelete = async (userId: number) => {
+    try {
+      await userAPI.deleteUser(userId);
+      fetchUsers();
+    } catch (err) {
+      setError('Failed to delete service');
+      console.error('Error deleting service:', err);
+    }
+  };
 
   return (
     <div>
@@ -43,6 +53,21 @@ const User = () => {
           { title: 'Full Name', dataIndex: 'full_name', key: 'full_name' },
           { title: 'Age', dataIndex: 'age', key: 'age' },
           { title: 'Role', dataIndex: 'role', key: 'role' },
+          {
+            title: 'Actions',
+            key: 'actions',
+            render: (_: any, record: { id: number }) => (
+              <Popconfirm
+                title="Are you sure you want to delete this service?"
+                onConfirm={() => handleDelete(record.id)}
+                className='bg-slate-300'
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="link">Delete</Button>
+              </Popconfirm>
+            ),
+          },
         ]}
         dataSource={users}
         rowKey="id"

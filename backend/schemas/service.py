@@ -39,3 +39,13 @@ class ServiceCreate(BaseModel):
 class ServiceResponse(BaseModel):
     services: List[ServiceBase]
     total: int
+
+class ServiceCreate(BaseModel):
+    name: str
+    address: str
+    geolocation: str
+    website: str
+    type: str
+    description: str
+    email: str
+    phone: str

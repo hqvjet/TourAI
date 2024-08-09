@@ -46,8 +46,8 @@ export default function Home() {
 
   return (
     <main>
-      <div className="hidden md:block font-bold text-6xl text-center mt-24 mb-12">
-        Đi Đâu Bro?
+      <div className="hidden md:block font-bold text-5xl text-center mt-24 mb-12">
+        Đánh giá dịch vụ uy tín và chất lượng!
       </div>
 
       <SearchBox
@@ -71,9 +71,12 @@ export default function Home() {
         className="my-5 flex justify-center"
       />
 
-      <div className="max-w-7xl mx-auto block md:flex bg-[#f2b203] p-5 space-x-5 my-10">
+      <div className="max-w-7xl mx-auto block md:flex bg-green-400 p-5 space-x-5 my-10 rounded-br-full">
         <div>
-          <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.explicit.bing.net%2Fth%3Fid%3DOIP.5yJ1ulwQCBN7z28ixlU16AHaFc%26pid%3DApi&f=1&ipt=a2ae5625ac7adae58c5900fc212c545632157c5262a06b16d27fffb1398eb83d&ipo=images" alt="Banner" />
+          <img 
+            src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.explicit.bing.net%2Fth%3Fid%3DOIP.5yJ1ulwQCBN7z28ixlU16AHaFc%26pid%3DApi&f=1&ipt=a2ae5625ac7adae58c5900fc212c545632157c5262a06b16d27fffb1398eb83d&ipo=images" alt="Banner" 
+            
+          />
         </div>
 
         <div className="mt-5 md:mt-0">
@@ -84,7 +87,7 @@ export default function Home() {
             Chúng tôi chào đón bạn với những dịch vụ chất lượng, từ khách sạn sang trọng đến các chuyến bay và dịch vụ di chuyển tiện lợi. Hãy khám phá và tận hưởng!
             <br />
             <br />
-            <button className="btn mt-3">Khám phá ngay</button>
+            <button className="btn mt-3 bg-white text-black border-none font-bold hover:bg-slate-200">Khám phá ngay</button>
           </p>
         </div>
       </div>

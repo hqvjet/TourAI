@@ -8,6 +8,7 @@ interface ServiceDetailProps {
   id: number;
   name: string;
   address: string;
+  geolocation: string;
   website?: string;
   type: string;
   phone: string;
@@ -24,6 +25,7 @@ const ServiceDetailPage: React.FC = () => {
     id: 0,
     name: '',
     address: '',
+    geolocation: '',
     type: '',
     phone: '',
     imageUrls: [],
@@ -59,6 +61,7 @@ const ServiceDetailPage: React.FC = () => {
           id: data.id,
           name: data.name,
           address: data.address,
+          geolocation: data.geolocation,
           website: data.website,
           type: data.type,
           phone: data.phone,
@@ -85,6 +88,7 @@ const ServiceDetailPage: React.FC = () => {
         id={serviceData.id}
         name={serviceData.name}
         address={serviceData.address}
+        geolocation={serviceData.geolocation}
         website={serviceData.website}
         type={serviceData.type}
         phone={serviceData.phone}

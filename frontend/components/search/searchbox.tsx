@@ -41,7 +41,7 @@ const SearchBox = ({ type, setType, setResults, handleTypeChange, page, limit }:
 
   return (
     <div className="auto-scroll overflow-x-scroll text-gray-700 mt-3">
-      <div className="flex justify-center w-[700px] md:w-[800px] text-2xl space-x-5 md:mx-auto">
+      <div className="flex justify-center w-[700px] md:w-[800px] text-lg space-x-5 md:mx-auto">
         <div
           className={`nav_bar_components ${type === "all" ? "border-gray-600" : ""}`}
           onClick={() => handleTypeChangeInternal("all")}

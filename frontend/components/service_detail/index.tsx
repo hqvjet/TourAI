@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import LanguageIcon from '@mui/icons-material/Language';
+import CommentIcon from '@mui/icons-material/Comment';
 import RoomServiceIcon from '@mui/icons-material/RoomService';
 import ProgressBar from '../progress_bar';
 import ImageGallery from 'react-image-gallery';
 import 'react-image-gallery/styles/css/image-gallery.css';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { commentAPI } from '@/apis/comment';
-import { message, Card } from 'antd';
+import { message, Card, Button } from 'antd';
 
 interface ServiceDetailProps {
   name: string;
   address: string;
+  geolocation: string;
   website?: string;
   type: string;
   phone: string;
@@ -28,6 +30,7 @@ interface ServiceDetailProps {
 const ServiceDetail: React.FC<ServiceDetailProps> = ({
   name,
   address,
+  geolocation,
   website,
   type,
   phone,
@@ -36,50 +39,25 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
   id,
   user_id,
 }) => {
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
   const [reviewTitle, setReviewTitle] = useState('');
   const [reviewContent, setReviewContent] = useState('');
+  const [loading, setLoading] = useState(false);
   const [comments, setComments] = useState<any[]>([]);
   const [positive, setPositive] = useState(0);
   const [negative, setNegative] = useState(0);
   const [neutral, setNeutral] = useState(0);
+  const latlng = {
+    lat: Number(geolocation.split(',')[0]),
+    lng: Number(geolocation.split(',')[1])
+  }
 
   const mapContainerStyle = {
     width: '100%',
     height: '600px',
   };
 
-  useEffect(() => {
-    const fetchMapData = async () => {
-      try {
-        const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${address}&key=${process.env.NEXT_PUBLIC_MAP_API}`
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch map data');
-        }
-        const data = await response.json();
-        if (data.results && data.results.length > 0) {
-          const location = data.results[0].geometry.location;
-          setMapCenter({ lat: location.lat, lng: location.lng });
-          setMapLoaded(true);
-        } else {
-          throw new Error('No results found');
-        }
-      } catch (error) {
-        console.error('Error fetching map data:', error);
-      }
-    };
-
-    fetchMapData();
-  }, [address, process.env.NEXT_PUBLIC_MAP_API]);
-
   const fetchComments = async () => {
     try {
-      message.info(`Fetching comments for id: ${id}`);
-      message.info(`Users id: ${user_id}`);      
-      message.info(`Image: ${imageUrls}`);
       const response = await commentAPI.getCommentById(id);
       setComments(response.data);
 
@@ -107,6 +85,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
     };
 
     try {
+      setLoading(true);
       const response = await fetch('http://localhost:5000/api/v1/predict', {
         method: 'POST',
         headers: {
@@ -139,13 +118,16 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
         service_id: id,
         users_id: user_id,
       };
-      message.info(`New comment data: ${JSON.stringify(newComment)}`);
       await commentAPI.createComment(newComment);
       setReviewTitle('');
       setReviewContent('');
       fetchComments();
+      message.success('Bình luận đã được đăng!')
     } catch (error) {
-      console.error('Error submitting review:', error);
+      message.error('Ôi, bình luận của bạn hiện tại không thể đăng ở dịch vụ này, vui lòng kiểm tra lại!')
+    }
+    finally {
+      setLoading(false);
     }
   };
   const formattedImageUrls = imageUrls.map((url) => ({
@@ -156,7 +138,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
     <div className="w-7/12 mx-auto px-4 py-8">
       <div className="rounded-lg">
         <h2 className="text-5xl font-bold">{name}</h2>
-        <p className='mt-2 text-gray-700'>{`${comments.length} đánh giá`}</p>
+        <p className='mt-2 text-gray-700'><CommentIcon /> {`${comments.length} đánh giá`}</p>
         <p className="mt-2 text-gray-700">
           <LocationOnIcon /> {address}
         </p>
@@ -177,14 +159,14 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
         </p>
       </div>
 
-      <div className="mb-4 mt-4 border border-gray-300 rounded-lg">
+      <div className="mb-4 mt-4 rounded-lg">
         <ImageGallery
           items={formattedImageUrls}
           showPlayButton={false}
           showThumbnails={false}
           showFullscreenButton={false}
           renderItem={(item) => (
-            <div className="w-full h-full md:h-[600px] max-h-[600px] overflow-hidden">
+            <div className="w-full h-full md:h-[600px] max-h-[600px] overflow-hidden rounded-xl">
               <img
                 src={item.original}
                 alt={name}
@@ -201,25 +183,21 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
           <LocationOnIcon /> {address}
         </p>
         <div className="w-full h-[400px] md:h-[600px] bg-slate-300 drop-shadow-sm">
-          {!mapLoaded && <div className="p-4">Loading map...</div>}
-          {mapLoaded && (
-            <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_MAP_API as string}>
-              <GoogleMap
-                mapContainerStyle={mapContainerStyle}
-                center={mapCenter}
-                zoom={18}
-                options={{ mapTypeId: 'hybrid' }}
-              >
-                <Marker position={mapCenter} />
-              </GoogleMap>
-            </LoadScript>
-          )}
+          <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_MAP_API as string}>
+            <GoogleMap
+              mapContainerStyle={mapContainerStyle}
+              center={latlng}
+              zoom={18}
+              options={{ mapTypeId: 'hybrid' }}
+            >
+              <Marker position={latlng} />
+            </GoogleMap>
+          </LoadScript>
         </div>
       </div>
 
       <Card title={<h1 className='text-3xl'>Giới thiệu</h1>} className='mt-8'>
         <div className="mt-4">
-          <h3 className="text-lg font-bold">Description:</h3>
           <p className="mt-2">{description}</p>
         </div>
       </Card>
@@ -234,18 +212,18 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
               />
             </div>
             <div className="mt-2">
-              <div className="text-green-500 font-bold">Positive: {positive}%</div>
-              <div className="text-gray-500">Neutral: {neutral}%</div>
-              <div className="text-red-500 font-bold">Negative: {negative}%</div>
+              <div className="text-green-500 font-bold">Tích cực: {positive}%</div>
+              <div className="text-gray-500">Bình thường: {neutral}%</div>
+              <div className="text-red-500 font-bold">Tiêu cực: {negative}%</div>
             </div>
           </div>
         </div>
         <div className="col-span-1 md:border md:border-gray-300 md:rounded-lg md:p-4 overflow-auto">
           <div className="mt-4">
-            <h3 className="text-lg font-bold">Contact Information:</h3>
+            <h3 className="text-lg font-bold">Thông tin liên hệ:</h3>
             {address && (
               <p className="mt-2">
-                <LocationOnIcon /> Address: {address}
+                <LocationOnIcon /> Địa chỉ: {address}
               </p>
             )}
             {website && (
@@ -263,12 +241,12 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
             )}
             {phone && (
               <p className="mt-2">
-                <PhoneIcon /> Phone: {phone}
+                <PhoneIcon /> Hotline: {phone}
               </p>
             )}
             {type && (
               <p className="mt-2">
-                <RoomServiceIcon /> Type: {type}
+                <RoomServiceIcon /> Loại: {type}
               </p>
             )}
           </div>
@@ -276,10 +254,10 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
       </div>
 
       <div className="mt-8 border border-gray-300 rounded-lg p-4">
-        <h3 className="text-lg font-bold mb-6">Leave a Review:</h3>
+        <h3 className="text-lg font-bold mb-6">Bạn đã trải nghiệm dịch vụ này chưa? nếu có thì để lại một bình luận nhé:</h3>
         <div className="mb-4">
           <label htmlFor="reviewTitle" className="block text-sm font-medium text-gray-700">
-            Title
+            Tiêu đề
           </label>
           <input
             type="text"
@@ -291,41 +269,59 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({
         </div>
         <div className="mb-4">
           <label htmlFor="reviewContent" className="block text-sm font-medium text-gray-700">
-            Content
+            Nội dung
           </label>
           <textarea
             id="reviewContent"
             value={reviewContent}
+            rows={5}
             onChange={(e) => setReviewContent(e.target.value)}
             className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           ></textarea>
         </div>
-        <button
+        <Button
           onClick={handleReviewSubmit}
+          loading={loading}
           className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          Submit Review
-        </button>
+          Đăng ngay!
+        </Button>
       </div>
 
       <div className="border border-gray-300 rounded-lg p-4 mt-8">
-        <h3 className="text-lg font-bold mb-2">Comments:</h3>
-        <div className="max-h-60 overflow-y-auto">
+        <h3 className="text-lg font-bold mb-2">Bình luận:</h3>
+        <div className="h-auto">
           {comments.length > 0 ? (
             comments.slice(0, 10).map((comment) => (
               <div
                 key={`${comment.service_id}-${comment.users_id}`}
                 className="mb-4 border border-gray-300 rounded-lg p-4"
               >
-                <h4 className="text-lg font-bold text-gray-600">
-                  by {comment.full_name}
+                <h4 className="text-lg font-bold text-gray-700 inline w-full">
+                  {comment.full_name} <i className='text-gray-500 text-sm'>- đã đăng vào {comment.created_at.slice(0, 10)} - </i>
                 </h4>
-                <h2 className="text-lg font-bold">{comment.title}</h2>
+                {comment.rating == 3 ? (<i className='text-green-500'>
+                  Bình luận tích cực
+                </i>) :
+                  (
+                    <>
+                      {comment.rating == 2 ? (<i className='text-orange-400'>
+                        Bình luận trung tính
+                      </i>) :
+                        (<i className='text-red-500'>
+                          Bình luận tiêu cực
+                        </i>)
+
+                      }
+                    </>
+                  )
+                }
+                <h2 className="text-lg font-bold mt-3">{comment.title}</h2>
                 <p>{comment.content}</p>
               </div>
             ))
           ) : (
-            <p>No comments yet.</p>
+            <p>Vẫn chưa có bình luận nào về loại dịch vụ này.</p>
           )}
         </div>
       </div>

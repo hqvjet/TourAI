@@ -54,7 +54,6 @@ def apply_sorting(query, sort_by, db):
 
 @router.post('/create', response_model=ServiceSchema)
 def create_service(service: ServiceCreate, request: Request, db: Session = Depends(get_db)):
-    print('hellu')
     user_name = get_current_user(request)
     user = db.query(UserModel).filter(UserModel.user_name == user_name).first()
 
